@@ -54,10 +54,11 @@ void setup() {
 
 void loop() {
 
-  // Obtem os dados do sensor DHT e manda para o firebase
+  // Obtem os dados do sensor DHT 
   float humidity = dht.getHumidity();
   float temperature = dht.getTemperature();
-  
+
+  // Manda para o firebase
   Firebase.pushFloat("temperature", temperature);
   Firebase.pushFloat("humidity", humidity);  
 
