@@ -1,6 +1,7 @@
 
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
+#include <Ticker.h>
 #include "DHT.h"
 
 // Set these to run example.
@@ -12,8 +13,16 @@
 #define LAMP_PIN D3
 #define PRESENCE_PIN D4
 #define DHT_PIN D5
+// Publique a cada 5 min
+#define PUBLISH_INTERVAL 1000*60*5
 
 DHT dht;
+Ticker ticker;
+bool publishNewState = true;
+
+void publish(){
+  publishNewState = true;
+}
 
 void setupPins(){
 
@@ -50,17 +59,25 @@ void setup() {
   setupWifi();    
 
   setupFirebase();
+
+  // Registra o ticker para publicar de tempos em tempos
+  ticker.attach(PUBLISH_INTERVAL, publish);
 }
 
 void loop() {
 
-  // Obtem os dados do sensor DHT 
-  float humidity = dht.getHumidity();
-  float temperature = dht.getTemperature();
+  // Apenas publique quando passar o tempo determinado
+  if(publishNewState){
 
-  // Manda para o firebase
-  Firebase.pushFloat("temperature", temperature);
-  Firebase.pushFloat("humidity", humidity);  
+    // Obtem os dados do sensor DHT 
+    float humidity = dht.getHumidity();
+    float temperature = dht.getTemperature();
+    // Manda para o firebase
+    Firebase.pushFloat("temperature", temperature);
+    Firebase.pushFloat("humidity", humidity);  
+
+    publishNewState = false;
+  }
 
   // Verifica o valor do sensor de presença
   // LOW sem movimento
