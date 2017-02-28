@@ -63,7 +63,7 @@ void setup() {
   setupFirebase();
 
   // Registra o ticker para publicar de tempos em tempos
-  ticker.attach(PUBLISH_INTERVAL, publish);
+  ticker.attach_ms(PUBLISH_INTERVAL, publish);
 }
 
 void loop() {
